@@ -38,6 +38,6 @@ const bg=$('.burger')[0],menu=$('.menu')[0];if(bg){bg.setAttribute('aria-expande
 $('.has-dd>a').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();if(innerWidth<=1180)a.parentNode.classList.toggle('open')}));
 const t=document.createElement('div');t.className='toast';t.setAttribute('role','status');document.body.append(t);
 $('form[data-form]').forEach(f=>f.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;e.preventDefault();const inp=$('input[required],input',f)[0];
-if(inp&&!inp.value.trim()){t.textContent='Please tell us your name or roll number first :)';inp.focus()}else{t.textContent=f.dataset.form;dispatchEvent(new CustomEvent('bcrp:form',{detail:Object.fromEntries(new FormData(f))}))}
+if(inp&&!inp.value.trim()){t.textContent='Please tell us your name or roll number first';inp.focus()}else{t.textContent=f.dataset.form;dispatchEvent(new CustomEvent('bcrp:form',{detail:Object.fromEntries(new FormData(f))}))}
 t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),3800)}));
 })();
