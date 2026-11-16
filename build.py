@@ -78,6 +78,16 @@ P["login"]=("Login","Secure portal login",f'''<div class="lg"><div class="lg-l">
 <form id="lf" data-role="student"><div><label id="idl">Student ID</label><input name="id" autocomplete="username"></div><div><label>Password</label><div class="pw"><input id="pw" name="pw" type="password" autocomplete="current-password"><button><i class="fa-regular fa-eye"></i></button></div></div><button class="btn btn-p" style="justify-content:center">Login <i class="fa-solid fa-arrow-right"></i></button></form><p class="note"><i class="fa-solid fa-lock"></i> No account? IDs and passwords are issued by the college office.</p></div></div></div>''',True)
 
 from content import C
+# --- team content loader: merges content_*.py (C, NEW) dropped in the repo root ---
+import glob, importlib.util
+def _load(f):
+    sp=importlib.util.spec_from_file_location(f[:-3],f); m=importlib.util.module_from_spec(sp); sp.loader.exec_module(m); return m
+for _f in sorted(glob.glob("content_*.py")):
+    _m=_load(_f); C.update(getattr(_m,"C",{}))
+    for _sec,_slug,_title in getattr(_m,"NEW",[]):
+        if _sec not in SECS:
+            SECS[_sec]=[]; NAV.insert(len(NAV)-1,(_sec,SECS[_sec]))
+        if _slug not in dict(SECS[_sec]): SECS[_sec].append((_slug,_title))
 TODO='<div class="todo"><i class="fa-regular fa-file-lines"></i><div><b>Content to be added</b><br>Paste the official text of this page into content.py (key: "%s"), then run build.py.</div></div>'
 def inner(sec,slug,title,body):
     side="".join(f'<a href="{s}.html" class="{"on" if s==slug else ""}">{t}</a>' for s,t in SECS[sec])
@@ -91,6 +101,8 @@ P["placement-status"]=("Placement Status","Placement status",inner("Placement","
 for slug,title in [("scholarship","Scholarship"),("achievements","Achievements")]:
     P[slug]=(title,title,phero(title,"Dr. B.C. Roy Polytechnic")+f'<section><div class="wrap" style="max-width:900px"><div class="box art">{C.get(slug) or TODO%slug}</div></div></section>')
 P["404"]=("Page not found","Page not found",f'<section style="text-align:center;padding:120px 0"><div class="wrap"><div style="width:130px;margin:auto">{LOGO}</div><p class="hand" style="font-size:2rem;margin-top:20px">Oops!</p><h1 style="font-size:clamp(2rem,5vw,3.2rem)">This page took a day off</h1><p class="lead" style="margin:16px auto 30px">We could not find what you were looking for. Let us get you back on track.</p><a class="btn btn-p" href="index.html">Back to home</a> <a class="btn btn-d" href="pages/contact.html">Talk to us</a></div></section>')
+# --- custom-layout pages: pages_*.py run with build.py's helpers (phero, sec, head, cards, dates, P ...) ---
+for _f in sorted(glob.glob("pages_*.py")): exec(open(_f).read(),globals())
 for k,(t,d,b,*x) in [(k,v if len(v)==4 else v+(False,)) for k,v in P.items()]:
     path="index.html" if k=="index" else "404.html" if k=="404" else f"pages/{k}.html"; open(path,"w").write(page(k,t,d,b,bool(x[0]) if x else False))
 print("built",len(P))
